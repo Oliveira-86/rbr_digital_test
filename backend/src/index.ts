@@ -1,15 +1,24 @@
 import express, { Request, Response } from 'express';
-import { connectDB } from './db';
+import cors from "cors";
+import { connect } from './database/connection';
+import 'dotenv/config'
+import path from 'path';
+import dotenv from 'dotenv';
+
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT ||  5000;
 
-const auehaue = 'sdawsd'
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+
+app.use(cors());
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello TypeScript + Express!');
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+  console.log(`Server is runnig on port: ${PORT}`)
+})
+
+connect()
