@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Providers } from '../providers/chakra';
+import { Providers } from '../providers/Chakra';
 import { fonts } from './fonts';
 import './globals.css';
 import Header from '@/components/Header';
