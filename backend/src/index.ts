@@ -6,11 +6,12 @@ import path from 'path';
 import dotenv from 'dotenv';
 import employeesRouters from './routes/employee'
 
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
 const PORT = process.env.PORT ||  5000;
 
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+app.use(express.json());
 
 app.use(cors());
 

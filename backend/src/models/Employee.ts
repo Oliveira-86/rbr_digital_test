@@ -1,11 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IEmployees extends Document {
-  name: string;
-  position: string;
-  department: string;
-  hireDate: Date;
-}
+  export interface IEmployees extends Document {
+    name: string;
+    position: string;
+    department: string;
+    hireDate: Date;
+    createdAt?: Date;
+  }
 
 const EmployeesSchema: Schema = new Schema({
     name: {
