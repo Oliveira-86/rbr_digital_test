@@ -1,10 +1,10 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import { Box, Container, Flex } from '@chakra-ui/react';
+import { Children } from 'react';
 
-export default function Home() {
+export default function Home({ children }: { children: React.ReactNode }) {
   return (
-    <main className={styles.main}>
-     Hello World!!
-    </main>
+    <Box width="100vw" height="100vh" bg="gray.50">
+      {children}
+    </Box>
   );
 }

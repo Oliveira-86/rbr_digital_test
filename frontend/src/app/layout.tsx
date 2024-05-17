@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Providers } from './providers';
+import { Providers } from '../providers/chakra';
 import { fonts } from './fonts';
 import './globals.css';
 import Header from '@/components/Header';
@@ -17,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={fonts.rubik.variable}>
       <body>
+        <Header />
         <Providers>{children}</Providers>
       </body>
     </html>
