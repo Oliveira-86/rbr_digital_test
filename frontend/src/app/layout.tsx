@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import { Providers } from '../providers/Chakra';
 import { fonts } from './fonts';
 import './globals.css';
 import Header from '@/components/Header';
+import ClientProvider from '@/providers/index.';
 
 export const metadata: Metadata = {
   title: 'RBR Digital',
@@ -18,7 +18,7 @@ export default function RootLayout({
     <html lang="en" className={fonts.rubik.variable}>
       <body>
         <Header />
-        <Providers>{children}</Providers>
+        <ClientProvider>{children}</ClientProvider>
       </body>
     </html>
   );
