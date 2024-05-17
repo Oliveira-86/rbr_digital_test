@@ -1,19 +1,11 @@
 import { Request, Response } from 'express';
 import Employees, { IEmployees } from "../models/Employee";
 import { diacriticSensitiveRegex } from '../utils/regex';
+import mongoose from 'mongoose';
 
-interface ISearch {
-    searchQuery: string;
-}
-
-interface IPage {
-    page: number;
-}
-
-export const getEmployees = async (req: Request<{}, {}, {}, IPage>, res: Response) => {
+export const getEmployees = async (req: Request<{}, {}, {}, { page: number }>, res: Response) => {
     const { page } = req.query;
  
-
     try {
         if (!page) {
             throw new Error("O parâmetro 'page' é obrigatório.");
@@ -41,7 +33,7 @@ export const getEmployees = async (req: Request<{}, {}, {}, IPage>, res: Respons
     }
 };
 
-export const getEmployeesBySearch = async (req: Request<{}, {}, {}, ISearch>, res: Response) => {
+export const getEmployeesBySearch = async (req: Request<{}, {}, {}, { searchQuery: string }>, res: Response) => {
     const { searchQuery } = req.query;
 
     const searchSensitiveRegex = diacriticSensitiveRegex(searchQuery);
@@ -59,9 +51,9 @@ export const getEmployeesBySearch = async (req: Request<{}, {}, {}, ISearch>, re
     }
 };
 
-export const createEmployee = async (req: Request<{}, {}, {}, IEmployees>, res: Response) => {
+export const createEmployee = async (req: Request<IEmployees>, res: Response) => {
     const employee = req.body;
-    
+
     const newEmployeeMessage = new Employees({
         ...employee,
         createdAt: new Date().toISOString(),
@@ -75,8 +67,54 @@ export const createEmployee = async (req: Request<{}, {}, {}, IEmployees>, res: 
 
         res.status(201).json(newEmployeeMessage);
     } catch (error: any) {
-        console.log(error);
+        res.status(500).json({ message: "Ocorreu um erro ao processar a solicitação." });
+    }
+};
+
+export const updateEmployee = async (req: Request<{ id: string }>, res: Response) => {
+    const { id } = req.params;
+    const { name, department, position, hireDate }: IEmployees = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ message: `ID inválido: ${id}` });
+    }
+
+    try {
+        const existingEmployee = await Employees.findById(id);
+        if (!existingEmployee) {
+            return res.status(404).json({ message: `Nenhum funcionário encontrado com o ID: ${id}` });
+        }
+        
+        if (name) existingEmployee.name = name;
+        if (department) existingEmployee.department = department;
+        if (position) existingEmployee.position = position;
+        if (hireDate) existingEmployee.hireDate = hireDate;
+    
+        const updatedEmployee = await existingEmployee.save();
+    
+        res.json(updatedEmployee);
+    } catch (error) {
         res.status(500).json({ message: "Ocorreu um erro ao processar a solicitação." });
     }
 };
   
+
+export const deleteEmployee = async (req: Request<{ id: string }>, res: Response) => {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id))
+        return res.status(404).send(`No post with id: ${id}`);
+
+    try {
+        const existingEmployee = await Employees.findById(id);
+        if (!existingEmployee) {
+            return res.status(404).json({ message: `Nenhum funcionário encontrado com o ID: ${id}` });
+        }
+    
+        const updatedEmployee = await Employees.findByIdAndDelete(id);
+    
+        res.json(updatedEmployee);
+    } catch (error) {
+        res.status(500).json({ message: "Ocorreu um erro ao processar a solicitação." });
+    }
+};
