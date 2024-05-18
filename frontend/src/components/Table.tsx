@@ -20,6 +20,15 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalCloseButton,
+  ModalHeader,
+  ModalFooter,
+  useDisclosure,
+  Spinner,
+  useToast,
 } from '@chakra-ui/react';
 import { ArrowLeftIcon, ArrowRightIcon, SearchIcon } from '@chakra-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -32,16 +41,22 @@ import {
   fetchEmployees,
   fetchEmployeesBySearch,
 } from '@/redux/employees/employeeThunk';
-import TitleAndSubTitle from './TitleAndSubTitle';
-import api from '@/services/api';
+import api, { ApiResponse } from '@/services/api';
 
 export default function Table() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [employeeId, setEmployeeId] = useState('');
+  const [loadingDelete, setLoadingDelete] = useState(false);
 
   const dispatch = useDispatch();
+
   const { data, currentPage, numberOfPages, isLoading } = useSelector(
     (state: RootState) => state.employees
   );
+
+  const toast = useToast();
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     if (!searchQuery) {
@@ -83,21 +98,35 @@ export default function Table() {
     dispatch(fetchEmployeesBySearch(searchQuery));
   };
 
+  const handleOpenModalToDelete = (id: string) => {
+    setEmployeeId(id);
+    onOpen();
+  };
+
   const handleDelete = async (id: string) => {
+    setLoadingDelete(true);
     try {
-      await api.delete(`/employees/${id}`);
+      const { data } = await api.delete(`/employees/${id}`);
+
+      setLoadingDelete(false);
+      onClose();
+      toast({
+        title: data.message,
+        status: data.success ? 'success' : 'error',
+        duration: 6000,
+        isClosable: true,
+        position: 'top-right',
+      });
       // @ts-ignore
       dispatch(fetchEmployees(currentPage));
       return id;
-    } catch (error) {}
+    } catch (error) {
+      setLoadingDelete(false);
+    }
   };
 
   return (
     <>
-      <TitleAndSubTitle
-        title="Central de Funcionários"
-        subtitle="Organize e Supervisione sua Equipe com Facilidade"
-      />
       <Flex w="100%" display="flex" alignItems="center" justify="space-between">
         <form onSubmit={handleSubmit}>
           <InputGroup
@@ -161,7 +190,9 @@ export default function Table() {
                         <Icon as={FaEdit} color="gray.700" w={4} h={4} mr={3} />
                         Editar
                       </MenuItem>
-                      <MenuItem onClick={() => handleDelete(employee._id)}>
+                      <MenuItem
+                        onClick={() => handleOpenModalToDelete(employee._id)}
+                      >
                         <Icon
                           as={FaRegTrashAlt}
                           color="gray.700"
@@ -208,6 +239,28 @@ export default function Table() {
           />
         </Flex>
       </Flex>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>
+            Tem certeza que deseja deletar esse funcionário?
+          </ModalHeader>
+          <ModalCloseButton />
+
+          <ModalFooter>
+            <Button
+              colorScheme="blue"
+              mr={3}
+              onClick={() => handleDelete(employeeId)}
+            >
+              {loadingDelete ? <Spinner color="white" /> : 'Sim'}
+            </Button>
+            <Button colorScheme="red" onClick={onClose}>
+              Cancela
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 }
