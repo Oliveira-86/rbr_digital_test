@@ -117,6 +117,38 @@ export const getEmployeesBySearch = async (
   }
 }
 
+export const getEmployeeById = async (req: Request, res: Response) => {
+  const { id } = req.params
+
+  try {
+    const employee = await Employees.findById(id)
+
+    if (!employee) {
+      return res.json(
+        new Result(
+          false,
+          HttpStatusCode.NotFound,
+          null,
+          'Funcionário não encontrado',
+        ),
+      )
+    }
+
+    return res.json(
+      new Result(true, HttpStatusCode.OK, employee, 'Funcionário encontrado'),
+    )
+  } catch (error: any) {
+    return res.json(
+      new Result(
+        false,
+        HttpStatusCode.InternalServerError,
+        null,
+        error.message || 'Ocorreu um erro ao processar a solicitação.',
+      ),
+    )
+  }
+}
+
 export const createEmployee = async (
   req: Request<IEmployees>,
   res: Response,

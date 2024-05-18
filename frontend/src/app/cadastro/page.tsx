@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Card from '@/components/Card';
 import {
   Box,
   Button,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -20,6 +21,9 @@ import { z } from 'zod';
 import api from '@/services/api';
 import { ApiResponse } from '@/types';
 import { useRouter } from 'next/navigation';
+import { RootState } from '@/redux/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { clearCurrentEmployee } from '@/redux/employees/employeesSlice';
 
 const employeeSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
@@ -38,33 +42,58 @@ type EmployeeFormData = z.infer<typeof employeeSchema>;
 
 export default function Register() {
   const [loading, setLoading] = useState(false);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<EmployeeFormData>({
     resolver: zodResolver(employeeSchema),
   });
+
+  const { currentEmployee } = useSelector(
+    (state: RootState) => state.employees
+  );
+
+  const dispatch = useDispatch();
 
   const router = useRouter();
 
   const toast = useToast();
 
+  useEffect(() => {
+    const date = currentEmployee?.hireDate.split('T')[0];
+
+    setValue('name', currentEmployee?.name || '');
+    setValue('position', currentEmployee?.position || '');
+    setValue('department', currentEmployee?.department || '');
+    setValue('hireDate', date || '');
+  }, [currentEmployee, setValue, dispatch]);
+
   const onSubmit = async (empData: EmployeeFormData) => {
     setLoading(true);
+    let dataRes: ApiResponse<EmployeeFormData>;
     try {
-      const { data } = await api.post<ApiResponse<EmployeeFormData>>(
-        `/employees`,
-        empData
-      );
-
-      console.log('data: ', data);
+      if (currentEmployee) {
+        const { data } = await api.put<ApiResponse<EmployeeFormData>>(
+          `/employees/${currentEmployee._id}`,
+          empData
+        );
+        dataRes = data;
+      } else {
+        const { data } = await api.post<ApiResponse<EmployeeFormData>>(
+          `/employees`,
+          empData
+        );
+        dataRes = data;
+      }
 
       setLoading(false);
       router.push('/dashboard');
       toast({
-        title: data.message,
-        status: data.success ? 'success' : 'error',
+        title: dataRes.message,
+        status: dataRes.success ? 'success' : 'error',
         duration: 6000,
         isClosable: true,
         position: 'top-right',
@@ -113,9 +142,29 @@ export default function Register() {
             <FormErrorMessage>{errors.hireDate?.message}</FormErrorMessage>
           </FormControl>
 
-          <Button w={200} type="submit" colorScheme="blue" mt={10}>
-            {loading ? <Spinner color="white" /> : 'Adicionar Funcionário'}
-          </Button>
+          <Flex align={'center'} gap={5} mt={10}>
+            <Button w={200} type="submit" colorScheme="blue">
+              {loading ? (
+                <Spinner color="white" />
+              ) : (
+                `${
+                  currentEmployee?._id ? 'Atualizar' : 'Adicionar'
+                }  Funcionário`
+              )}
+            </Button>
+
+            {currentEmployee && (
+              <Button
+                variant="outline"
+                colorScheme="blue"
+                size="md"
+                aria-label="Send email"
+                onClick={() => dispatch(clearCurrentEmployee())}
+              >
+                Limpar
+              </Button>
+            )}
+          </Flex>
         </VStack>
       </Card>
     </Box>

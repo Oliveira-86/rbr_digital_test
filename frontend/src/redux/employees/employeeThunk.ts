@@ -1,6 +1,7 @@
 import api from '@/services/api';
 import type {
   ApiResponse,
+  Employee,
   EmployeeData,
   FetchEmployeesParams,
   FetchEmployeesSearchParams,
@@ -44,6 +45,22 @@ export const fetchEmployeesBySearch = createAsyncThunk(
       }
     } catch (error) {
       return rejectWithValue('Failed to fetch employees by search');
+    }
+  }
+);
+
+export const fetchEmployeeById = createAsyncThunk(
+  'employees/fetchEmployeeById',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const response = await api.get<ApiResponse<Employee>>(`/employees/${id}`);
+      if (response.data.success) {
+        return response.data.result as Employee;
+      } else {
+        return rejectWithValue('Failed to fetch employee');
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Something went wrong');
     }
   }
 );

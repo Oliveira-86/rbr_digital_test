@@ -39,6 +39,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { setLimit, setOrder, setPage } from '@/redux/employees/employeesSlice';
 import {
+  fetchEmployeeById,
   fetchEmployees,
   fetchEmployeesBySearch,
 } from '@/redux/employees/employeeThunk';
@@ -48,17 +49,19 @@ import { GiHamburgerMenu } from 'react-icons/gi';
 import { FaRegTrashAlt, FaEdit } from 'react-icons/fa';
 
 import type { ApiResponse } from '@/types';
+import { useRouter } from 'next/navigation';
 
 export default function Table() {
   const [searchQuery, setSearchQuery] = useState('');
   const [employeeId, setEmployeeId] = useState('');
   const [loadingDelete, setLoadingDelete] = useState(false);
 
+  const router = useRouter();
+
   const dispatch = useDispatch();
 
-  const { list, currentPage, numberOfPages, limit, order } = useSelector(
-    (state: RootState) => state.employees
-  );
+  const { list, currentPage, numberOfPages, limit, order, isLoading } =
+    useSelector((state: RootState) => state.employees);
 
   const toast = useToast();
 
@@ -132,6 +135,13 @@ export default function Table() {
     onOpen();
   };
 
+  const handleOpenModalToEdit = (id: string) => {
+    // @ts-ignore
+    dispatch(fetchEmployeeById(id));
+
+    if (!isLoading) router.push('/cadastro');
+  };
+
   const handleDelete = async (id: string) => {
     setLoadingDelete(true);
     try {
@@ -193,7 +203,12 @@ export default function Table() {
           </InputGroup>
         </form>
 
-        <Button bg="blue.400" color="white" mb={10}>
+        <Button
+          bg="blue.400"
+          color="white"
+          mb={10}
+          onClick={() => router.push('/cadastro')}
+        >
           Adicionar
         </Button>
       </Flex>
@@ -223,7 +238,9 @@ export default function Table() {
                       <Icon as={GiHamburgerMenu} color="gray.400" w={6} h={6} />
                     </MenuButton>
                     <MenuList>
-                      <MenuItem>
+                      <MenuItem
+                        onClick={() => handleOpenModalToEdit(employee._id)}
+                      >
                         <Icon as={FaEdit} color="gray.700" w={4} h={4} mr={3} />
                         Editar
                       </MenuItem>

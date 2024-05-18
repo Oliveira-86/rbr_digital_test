@@ -35,3 +35,14 @@ export type FetchEmployeesSearchParams = {
   limit: number;
   order: 'cresc' | 'desc';
 };
+
+export type EmployeeState = {
+  list: Employee[] | null;
+  currentPage: number;
+  numberOfPages: number;
+  limit: number;
+  order: 'cresc' | 'desc';
+  isLoading: boolean;
+  error: string | null;
+  currentEmployee: Employee | null;
+};

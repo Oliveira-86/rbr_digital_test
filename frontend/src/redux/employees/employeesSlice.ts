@@ -1,20 +1,25 @@
-import api from '@/services/api';
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
-import { fetchEmployees, fetchEmployeesBySearch } from './employeeThunk';
-import { EmployeeData } from '@/types';
+import {
+  fetchEmployeeById,
+  fetchEmployees,
+  fetchEmployeesBySearch,
+} from './employeeThunk';
+import { Employee, EmployeeData, EmployeeState } from '@/types';
 
-const initialState: EmployeeData = {
+const initialState: EmployeeState = {
   list: [],
-  currentPage: 1, // Começa na página 1
+  currentPage: 1,
   numberOfPages: 1,
   isLoading: false,
-  limit: 10, // valor padrão
+  limit: 10,
   order: 'cresc',
   error: null,
+  currentEmployee: null,
 };
 
+//@ts-ignore
 export const employeeSlice = createSlice({
   name: 'employees',
   initialState,
@@ -27,6 +32,9 @@ export const employeeSlice = createSlice({
     },
     setOrder: (state, action: PayloadAction<'cresc' | 'desc'>) => {
       state.order = action.payload;
+    },
+    clearCurrentEmployee: (state) => {
+      state.currentEmployee = null;
     },
   },
   extraReducers: (builder) => {
@@ -66,10 +74,25 @@ export const employeeSlice = createSlice({
       .addCase(fetchEmployeesBySearch.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+      })
+      .addCase(fetchEmployeeById.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(
+        fetchEmployeeById.fulfilled,
+        (state, action: PayloadAction<Employee>) => {
+          state.currentEmployee = action.payload;
+          state.isLoading = false;
+        }
+      )
+      .addCase(fetchEmployeeById.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
   },
 });
 
-// Exportar as ações e o reducer
-export const { setPage, setLimit, setOrder } = employeeSlice.actions;
+export const { setPage, setLimit, setOrder, clearCurrentEmployee } =
+  employeeSlice.actions;
 export default employeeSlice.reducer;
