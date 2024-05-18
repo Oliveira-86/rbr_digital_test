@@ -120,7 +120,6 @@ export const createEmployee = async (
   res: Response,
 ) => {
   const employee = req.body
-
   const newEmployee = new Employees({
     ...employee,
     createdAt: new Date().toISOString(),
@@ -138,23 +137,28 @@ export const createEmployee = async (
       )
     }
 
-    const employeeAlreadyExist = await Employees.findById({
+    const employeeAlreadyExist = await Employees.find({
       name: employee.name,
     })
-    if (employeeAlreadyExist) {
+    if (employeeAlreadyExist.length === 0) {
+      await newEmployee.save()
+
       return res.json(
-        new Result(true, HttpStatusCode.OK, null, 'Funcionário já cadastrado.'),
+        new Result(
+          true,
+          HttpStatusCode.Create,
+          newEmployee,
+          'Funcionário cadastrado com sucesso.',
+        ),
       )
     }
-
-    await newEmployee.save()
 
     return res.json(
       new Result(
         true,
-        HttpStatusCode.Create,
-        newEmployee,
-        'Funcionário cadastrado com sucesso.',
+        HttpStatusCode.OK,
+        employeeAlreadyExist[0],
+        'Funcionário já cadastrado.',
       ),
     )
   } catch (error: any) {
