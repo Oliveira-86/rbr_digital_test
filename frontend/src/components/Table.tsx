@@ -31,17 +31,22 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { ArrowLeftIcon, ArrowRightIcon, SearchIcon } from '@chakra-ui/icons';
-import { useDispatch, useSelector } from 'react-redux';
+
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { setPage } from '@/redux/employees/employeesSlice';
-import { GiHamburgerMenu } from 'react-icons/gi';
-import { FaRegTrashAlt, FaEdit } from 'react-icons/fa';
 import {
   fetchEmployees,
   fetchEmployeesBySearch,
 } from '@/redux/employees/employeeThunk';
-import api, { ApiResponse } from '@/services/api';
+import api from '@/services/api';
+
+import { GiHamburgerMenu } from 'react-icons/gi';
+import { FaRegTrashAlt, FaEdit } from 'react-icons/fa';
+
+import type { ApiResponse } from '@/types';
 
 export default function Table() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,7 +55,7 @@ export default function Table() {
 
   const dispatch = useDispatch();
 
-  const { data, currentPage, numberOfPages, isLoading } = useSelector(
+  const { result, currentPage, numberOfPages, isLoading } = useSelector(
     (state: RootState) => state.employees
   );
 
@@ -175,7 +180,7 @@ export default function Table() {
           </Thead>
 
           <Tbody>
-            {(data || []).map((employee, index) => (
+            {(result || []).map((employee, index) => (
               <Tr key={index}>
                 <Td>{employee.name}</Td>
                 <Td>{employee.position}</Td>

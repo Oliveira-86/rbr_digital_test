@@ -3,26 +3,10 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 import { fetchEmployees, fetchEmployeesBySearch } from './employeeThunk';
-
-export type Employee = {
-  _id: string;
-  name: string;
-  position: string;
-  department: string;
-  hireDate: string;
-  createdAt: string;
-};
-
-type EmployeeData = {
-  data: Employee[];
-  currentPage: number;
-  numberOfPages: number;
-  isLoading: boolean;
-  error: string | null;
-};
+import { EmployeeData } from '@/types';
 
 const initialState: EmployeeData = {
-  data: [],
+  result: [],
   currentPage: 1, // Começa na página 1
   numberOfPages: 1,
   isLoading: false,
@@ -46,7 +30,7 @@ export const employeeSlice = createSlice({
       .addCase(
         fetchEmployees.fulfilled,
         (state, action: PayloadAction<EmployeeData>) => {
-          state.data = action.payload.data;
+          state.result = action.payload.result;
           state.currentPage = action.payload.currentPage;
           state.numberOfPages = action.payload.numberOfPages;
           state.isLoading = false;
@@ -63,8 +47,8 @@ export const employeeSlice = createSlice({
       .addCase(
         fetchEmployeesBySearch.fulfilled,
         (state, action: PayloadAction<EmployeeData>) => {
-          console.log('fetchEmployeesBySearch action: ', action.payload.data);
-          state.data = action.payload.data;
+          console.log('fetchEmployeesBySearch action: ', action.payload.result);
+          state.result = action.payload.result;
           state.currentPage = action.payload.currentPage;
           state.numberOfPages = action.payload.numberOfPages;
           state.isLoading = false;
