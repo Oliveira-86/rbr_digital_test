@@ -106,7 +106,7 @@ export default function Table() {
   const handleDelete = async (id: string) => {
     setLoadingDelete(true);
     try {
-      const { data } = await api.delete(`/employees/${id}`);
+      const { data } = await api.delete<ApiResponse<null>>(`/employees/${id}`);
 
       setLoadingDelete(false);
       onClose();

@@ -1,11 +1,14 @@
-import api from '@/services/api';
+import api, { ApiResponse } from '@/services/api';
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import { Employee } from './employeesSlice';
 
 export const fetchEmployees = createAsyncThunk(
   'employees/fetchEmployees',
   async (page: number, { rejectWithValue }) => {
     try {
-      const response = await api.get(`/employees?page=${page}`);
+      const response = await api.get<ApiResponse<Employee[]>>(
+        `/employees?page=${page}`
+      );
       if (response.data.success) {
         return response.data.result;
       } else {
@@ -21,7 +24,7 @@ export const fetchEmployeesBySearch = createAsyncThunk(
   'employees/fetchEmployeesBySearch',
   async (searchQuery: string, { rejectWithValue }) => {
     try {
-      const response = await api.get(
+      const response = await api.get<ApiResponse<Employee[]>>(
         `/employees/search?searchQuery=${searchQuery}`
       );
 
