@@ -7,11 +7,13 @@ export default function Card({
   title,
   subtitle,
   isLoading,
+  centered,
 }: {
   children: React.ReactNode;
   title: string;
   subtitle: string;
   isLoading?: boolean;
+  centered?: boolean;
 }) {
   return (
     <Box
@@ -29,7 +31,11 @@ export default function Card({
         borderWidth={1}
         borderColor="gray.200"
       >
-        <TitleAndSubTitle title={title} subtitle={subtitle} />
+        <TitleAndSubTitle
+          title={title}
+          subtitle={subtitle}
+          centered={centered}
+        />
         {children}
       </Box>
       {isLoading && (
