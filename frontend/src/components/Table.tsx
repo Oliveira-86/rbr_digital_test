@@ -26,140 +26,65 @@ import {
   ModalCloseButton,
   ModalHeader,
   ModalFooter,
-  useDisclosure,
   Spinner,
-  useToast,
   Select,
+  UseDisclosureProps,
 } from '@chakra-ui/react';
-import { ArrowLeftIcon, ArrowRightIcon, SearchIcon } from '@chakra-ui/icons';
+import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
-
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import { setLimit, setOrder, setPage } from '@/redux/employees/employeesSlice';
-import {
-  fetchEmployeeById,
-  fetchEmployees,
-  fetchEmployeesBySearch,
-} from '@/redux/employees/employeeThunk';
-import api from '@/services/api';
 
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { FaRegTrashAlt, FaEdit } from 'react-icons/fa';
-
-import type { ApiResponse } from '@/types';
+import { ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { useDebouncedValue } from '@/hook/useDebouncedValue';
-import { DEBOUNCE_TIME } from '@/utils/cons';
 
-export default function Table() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [employeeId, setEmployeeId] = useState('');
-  const [loadingDelete, setLoadingDelete] = useState(false);
+interface TableProps extends UseDisclosureProps {
+  routerAdd: string;
+  searchQuery: string;
+  handleSearchInputChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  handleOpenModalToEdit: (id: string) => void;
+  handleOpenModalToDelete: (id: string) => void;
+  handleLimitChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+  handleOrderChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+  handlePreviousPage: () => void;
+  handleNextPage: () => void;
+  handleDelete: () => void;
+  loadingDelete: boolean;
+  isOpen: boolean;
+  onClose: () => void;
+}
 
-  const router = useRouter();
-
-  const dispatch = useDispatch();
-
+export default function Table({
+  routerAdd,
+  searchQuery,
+  handleSearchInputChange,
+  handleOpenModalToEdit,
+  handleOpenModalToDelete,
+  handleLimitChange,
+  handleOrderChange,
+  handlePreviousPage,
+  handleNextPage,
+  isOpen,
+  onClose,
+  handleDelete,
+  loadingDelete,
+}: TableProps) {
   const { list, currentPage, numberOfPages, limit, order, isLoading } =
     useSelector((state: RootState) => state.employees);
 
-  const toast = useToast();
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
-  const [valueDebounced] = useDebouncedValue(searchQuery, DEBOUNCE_TIME);
-
-  const paramsSearcth = {
-    searchQuery: valueDebounced,
-    limit,
-    order,
-  };
-
-  const params = {
-    page: currentPage === 0 ? 1 : currentPage,
-    limit,
-    order,
-  };
-
-  useEffect(() => {
-    if (!valueDebounced) {
-      // @ts-ignore
-      dispatch(fetchEmployees(params));
-    } else {
-      // @ts-ignore
-      dispatch(fetchEmployeesBySearch(paramsSearcth));
-    }
-  }, [valueDebounced, currentPage, limit, order, dispatch]);
-
-  const handleNextPage = () => {
-    if (currentPage < numberOfPages) {
-      const nextPage = currentPage + 1;
-      dispatch(setPage(nextPage));
-      // @ts-ignore
-      dispatch(fetchEmployees(nextPage, limit, order));
-    }
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      const prevPage = currentPage - 1;
-      dispatch(setPage(prevPage));
-      // @ts-ignore
-      dispatch(fetchEmployees(prevPage, limit, order));
-    }
-  };
-
-  const handleSearchInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
-  };
-
-  const handleOpenModalToDelete = (id: string) => {
-    setEmployeeId(id);
-    onOpen();
-  };
-
-  const handleOpenModalToEdit = (id: string) => {
-    // @ts-ignore
-    dispatch(fetchEmployeeById(id));
-
-    if (!isLoading) router.push('/cadastro');
-  };
-
-  const handleDelete = async (id: string) => {
-    setLoadingDelete(true);
-    try {
-      const { data } = await api.delete<ApiResponse<null>>(`/employees/${id}`);
-
-      setLoadingDelete(false);
-      onClose();
-      toast({
-        title: data.message,
-        status: data.success ? 'success' : 'error',
-        duration: 6000,
-        isClosable: true,
-        position: 'top-right',
-      });
-      // @ts-ignore
-      dispatch(fetchEmployees(params));
-      return id;
-    } catch (error) {
-      setLoadingDelete(false);
-    }
-  };
-
-  const handleLimitChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    dispatch(setLimit(Number(event.target.value)));
-  };
-
-  const handleOrderChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    dispatch(setOrder(event.target.value as 'cresc' | 'desc'));
-  };
+  const router = useRouter();
 
   return (
     <>
-      <Flex w="100%" display="flex" alignItems="center" justify="space-between">
+      <Flex
+        w="100%"
+        display="flex"
+        position={'relative'}
+        alignItems="center"
+        justify="space-between"
+      >
         <InputGroup
           size={['200px', '200px', '350px', '350px', '350px']}
           mb={20}
@@ -182,7 +107,7 @@ export default function Table() {
           bg="blue.400"
           color="white"
           mb={10}
-          onClick={() => router.push('/cadastro')}
+          onClick={() => router.push(routerAdd)}
         >
           Adicionar
         </Button>
@@ -288,11 +213,7 @@ export default function Table() {
           <ModalCloseButton />
 
           <ModalFooter>
-            <Button
-              colorScheme="blue"
-              mr={3}
-              onClick={() => handleDelete(employeeId)}
-            >
+            <Button colorScheme="blue" mr={3} onClick={handleDelete}>
               {loadingDelete ? <Spinner color="white" /> : 'Sim'}
             </Button>
             <Button colorScheme="red" onClick={onClose}>
