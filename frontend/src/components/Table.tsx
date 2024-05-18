@@ -16,6 +16,10 @@ import {
   InputLeftElement,
   Flex,
   Icon,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from '@chakra-ui/react';
 import { ArrowLeftIcon, ArrowRightIcon, SearchIcon } from '@chakra-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,11 +27,13 @@ import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { RootState } from '@/redux/store';
 import { setPage } from '@/redux/employees/employeesSlice';
 import { GiHamburgerMenu } from 'react-icons/gi';
+import { FaRegTrashAlt, FaEdit } from 'react-icons/fa';
 import {
   fetchEmployees,
   fetchEmployeesBySearch,
 } from '@/redux/employees/employeeThunk';
 import TitleAndSubTitle from './TitleAndSubTitle';
+import api from '@/services/api';
 
 export default function Table() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -75,6 +81,15 @@ export default function Table() {
     }
     // @ts-ignore
     dispatch(fetchEmployeesBySearch(searchQuery));
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await api.delete(`/employees/${id}`);
+      // @ts-ignore
+      dispatch(fetchEmployees(currentPage));
+      return id;
+    } catch (error) {}
   };
 
   return (
@@ -137,13 +152,27 @@ export default function Table() {
                 <Td>{employee.position}</Td>
                 <Td>{employee.department}</Td>
                 <Td display={'flex'} align="center" justifyContent={'center'}>
-                  <Icon
-                    onClick={() => {}}
-                    as={GiHamburgerMenu}
-                    color="gray.400"
-                    w={6}
-                    h={6}
-                  />
+                  <Menu>
+                    <MenuButton as={Button}>
+                      <Icon as={GiHamburgerMenu} color="gray.400" w={6} h={6} />
+                    </MenuButton>
+                    <MenuList>
+                      <MenuItem>
+                        <Icon as={FaEdit} color="gray.700" w={4} h={4} mr={3} />
+                        Editar
+                      </MenuItem>
+                      <MenuItem onClick={() => handleDelete(employee._id)}>
+                        <Icon
+                          as={FaRegTrashAlt}
+                          color="gray.700"
+                          w={4}
+                          h={4}
+                          mr={3}
+                        />
+                        Deletar
+                      </MenuItem>
+                    </MenuList>
+                  </Menu>
                 </Td>
               </Tr>
             ))}
