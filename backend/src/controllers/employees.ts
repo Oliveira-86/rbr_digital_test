@@ -41,7 +41,7 @@ export const getEmployees = async (
       .skip(startIndex)
 
     const data = {
-      data: employees,
+      list: employees,
       currentPage: Number(page),
       numberOfPages: Math.ceil(total / LIMIT),
     }
@@ -90,7 +90,7 @@ export const getEmployeesBySearch = async (
       .limit(LIMIT)
 
     const data = {
-      data: employees,
+      list: employees,
       currentPage: Number(employees.length) === 0 ? 0 : 1,
       numberOfPages: Math.ceil(Number(employees.length) / LIMIT),
     }

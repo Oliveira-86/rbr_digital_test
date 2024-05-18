@@ -9,6 +9,7 @@ export const fetchEmployees = createAsyncThunk(
       const response = await api.get<ApiResponse<EmployeeData>>(
         `/employees?page=${page}`
       );
+      console.log('response: ', response.data.result);
       if (response.data.success) {
         return response.data.result;
       } else {
@@ -28,7 +29,11 @@ export const fetchEmployeesBySearch = createAsyncThunk(
         `/employees/search?searchQuery=${searchQuery}`
       );
 
-      return response.data.result;
+      if (response.data.success) {
+        return response.data.result;
+      } else {
+        return rejectWithValue('Failed to fetch employees');
+      }
     } catch (error) {
       return rejectWithValue('Failed to fetch employees by search');
     }

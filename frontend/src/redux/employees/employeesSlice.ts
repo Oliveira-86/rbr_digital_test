@@ -6,7 +6,7 @@ import { fetchEmployees, fetchEmployeesBySearch } from './employeeThunk';
 import { EmployeeData } from '@/types';
 
 const initialState: EmployeeData = {
-  result: [],
+  list: [],
   currentPage: 1, // Começa na página 1
   numberOfPages: 1,
   isLoading: false,
@@ -30,7 +30,8 @@ export const employeeSlice = createSlice({
       .addCase(
         fetchEmployees.fulfilled,
         (state, action: PayloadAction<EmployeeData>) => {
-          state.result = action.payload.result;
+          console.log('fetchEmployees action: ', action.payload);
+          state.list = action.payload.list;
           state.currentPage = action.payload.currentPage;
           state.numberOfPages = action.payload.numberOfPages;
           state.isLoading = false;
@@ -47,8 +48,8 @@ export const employeeSlice = createSlice({
       .addCase(
         fetchEmployeesBySearch.fulfilled,
         (state, action: PayloadAction<EmployeeData>) => {
-          console.log('fetchEmployeesBySearch action: ', action.payload.result);
-          state.result = action.payload.result;
+          console.log('fetchEmployeesBySearch action: ', action.payload);
+          state.list = action.payload.list;
           state.currentPage = action.payload.currentPage;
           state.numberOfPages = action.payload.numberOfPages;
           state.isLoading = false;

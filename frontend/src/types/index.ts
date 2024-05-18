@@ -8,7 +8,7 @@ export type Employee = {
 };
 
 export type EmployeeData = {
-  result: Employee[];
+  list: Employee[];
   currentPage: number;
   numberOfPages: number;
   isLoading: boolean;

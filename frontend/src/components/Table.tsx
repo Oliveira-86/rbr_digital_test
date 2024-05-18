@@ -55,7 +55,7 @@ export default function Table() {
 
   const dispatch = useDispatch();
 
-  const { result, currentPage, numberOfPages, isLoading } = useSelector(
+  const { list, currentPage, numberOfPages, isLoading } = useSelector(
     (state: RootState) => state.employees
   );
 
@@ -180,7 +180,7 @@ export default function Table() {
           </Thead>
 
           <Tbody>
-            {(result || []).map((employee, index) => (
+            {(list || []).map((employee, index) => (
               <Tr key={index}>
                 <Td>{employee.name}</Td>
                 <Td>{employee.position}</Td>
