@@ -46,7 +46,6 @@ export const employeeSlice = createSlice({
       .addCase(
         fetchEmployees.fulfilled,
         (state, action: PayloadAction<EmployeeData>) => {
-          console.log('fetchEmployees action: ', action.payload);
           state.list = action.payload.list;
           state.currentPage = action.payload.currentPage;
           state.numberOfPages = action.payload.numberOfPages;
@@ -64,7 +63,6 @@ export const employeeSlice = createSlice({
       .addCase(
         fetchEmployeesBySearch.fulfilled,
         (state, action: PayloadAction<EmployeeData>) => {
-          console.log('fetchEmployeesBySearch action: ', action.payload);
           state.list = action.payload.list;
           state.currentPage = action.payload.currentPage;
           state.numberOfPages = action.payload.numberOfPages;
