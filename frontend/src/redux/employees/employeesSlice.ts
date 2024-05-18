@@ -10,6 +10,8 @@ const initialState: EmployeeData = {
   currentPage: 1, // Começa na página 1
   numberOfPages: 1,
   isLoading: false,
+  limit: 10, // valor padrão
+  order: 'cresc',
   error: null,
 };
 
@@ -19,6 +21,12 @@ export const employeeSlice = createSlice({
   reducers: {
     setPage: (state, action: PayloadAction<number>) => {
       state.currentPage = action.payload;
+    },
+    setLimit: (state, action: PayloadAction<number>) => {
+      state.limit = action.payload;
+    },
+    setOrder: (state, action: PayloadAction<'cresc' | 'desc'>) => {
+      state.order = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -63,5 +71,5 @@ export const employeeSlice = createSlice({
 });
 
 // Exportar as ações e o reducer
-export const { setPage } = employeeSlice.actions;
+export const { setPage, setLimit, setOrder } = employeeSlice.actions;
 export default employeeSlice.reducer;

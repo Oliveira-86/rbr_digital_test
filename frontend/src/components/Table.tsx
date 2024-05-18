@@ -29,6 +29,7 @@ import {
   useDisclosure,
   Spinner,
   useToast,
+  Select,
 } from '@chakra-ui/react';
 import { ArrowLeftIcon, ArrowRightIcon, SearchIcon } from '@chakra-ui/icons';
 
@@ -36,7 +37,7 @@ import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import { setPage } from '@/redux/employees/employeesSlice';
+import { setLimit, setOrder, setPage } from '@/redux/employees/employeesSlice';
 import {
   fetchEmployees,
   fetchEmployeesBySearch,
@@ -55,7 +56,7 @@ export default function Table() {
 
   const dispatch = useDispatch();
 
-  const { list, currentPage, numberOfPages, isLoading } = useSelector(
+  const { list, currentPage, numberOfPages, limit, order } = useSelector(
     (state: RootState) => state.employees
   );
 
@@ -63,19 +64,42 @@ export default function Table() {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const paramsSearcth = {
+    searchQuery,
+    limit,
+    order,
+  };
+
+  const params = {
+    page: currentPage === 0 ? 1 : currentPage,
+    limit,
+    order,
+  };
+
   useEffect(() => {
     if (!searchQuery) {
       // @ts-ignore
-      dispatch(fetchEmployees(currentPage === 0 ? 1 : currentPage));
+      dispatch(fetchEmployees(params));
+    } else {
+      // @ts-ignore
+      dispatch(fetchEmployeesBySearch(paramsSearcth));
     }
-  }, [searchQuery]);
+  }, [searchQuery, currentPage, limit, order, dispatch]);
+
+  useEffect(() => {
+    if (searchQuery) {
+      console.log(searchQuery);
+      // @ts-ignore
+      dispatch(fetchEmployeesBySearch(paramsSearcth));
+    }
+  }, [searchQuery, currentPage, limit, order, dispatch]);
 
   const handleNextPage = () => {
     if (currentPage < numberOfPages) {
       const nextPage = currentPage + 1;
       dispatch(setPage(nextPage));
       // @ts-ignore
-      dispatch(fetchEmployees(nextPage));
+      dispatch(fetchEmployees(nextPage, limit, order));
     }
   };
 
@@ -84,7 +108,7 @@ export default function Table() {
       const prevPage = currentPage - 1;
       dispatch(setPage(prevPage));
       // @ts-ignore
-      dispatch(fetchEmployees(prevPage));
+      dispatch(fetchEmployees(prevPage, limit, order));
     }
   };
 
@@ -96,11 +120,11 @@ export default function Table() {
     event.preventDefault();
     if (!searchQuery) {
       // @ts-ignore
-      dispatch(fetchEmployees(currentPage === 0 ? 1 : currentPage));
+      dispatch(fetchEmployees(params));
       return;
     }
     // @ts-ignore
-    dispatch(fetchEmployeesBySearch(searchQuery));
+    dispatch(fetchEmployeesBySearch(paramsSearcth));
   };
 
   const handleOpenModalToDelete = (id: string) => {
@@ -123,11 +147,19 @@ export default function Table() {
         position: 'top-right',
       });
       // @ts-ignore
-      dispatch(fetchEmployees(currentPage));
+      dispatch(fetchEmployees(params));
       return id;
     } catch (error) {
       setLoadingDelete(false);
     }
+  };
+
+  const handleLimitChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    dispatch(setLimit(Number(event.target.value)));
+  };
+
+  const handleOrderChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    dispatch(setOrder(event.target.value as 'cresc' | 'desc'));
   };
 
   return (
@@ -216,7 +248,18 @@ export default function Table() {
         </StyledTable>
       </TableContainer>
 
-      <Flex w="100%" flex="flex" justify="flex-end" mt={10}>
+      <Flex w="100%" flex="flex" justify="flex-end" mt={10} gap={5}>
+        <Select w={110} onChange={handleLimitChange} value={limit}>
+          <option value={5}>5 linhas</option>
+          <option value={10}>10 linhas</option>
+          <option value={20}>20 linhas</option>
+          <option value={20}>40 linhas</option>
+        </Select>
+
+        <Select w={120} onChange={handleOrderChange} value={order}>
+          <option value="cresc">Crescente</option>
+          <option value="desc">Descendente</option>
+        </Select>
         <Flex
           w="auto"
           display="flex"

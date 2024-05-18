@@ -13,10 +13,10 @@ enum HttpStatusCode {
 }
 
 export const getEmployees = async (
-  req: Request<{}, {}, {}, { page: number }>,
+  req: Request<{}, {}, {}, { page: number; limit: number; order: string }>,
   res: Response,
 ) => {
-  const { page } = req.query
+  const { page, limit, order } = req.query
 
   try {
     if (!page) {
@@ -30,20 +30,19 @@ export const getEmployees = async (
       )
     }
 
-    const LIMIT = 10
-    const startIndex = Number(page - 1) * LIMIT
+    const startIndex = Number(page - 1) * limit
 
     const total = await Employees.countDocuments({})
 
     const employees = await Employees.find()
-      .sort({ _id: 1 })
-      .limit(LIMIT)
+      .sort({ _id: order === 'cresc' ? 1 : -1 })
+      .limit(limit)
       .skip(startIndex)
 
     const data = {
       list: employees,
       currentPage: Number(page),
-      numberOfPages: Math.ceil(total / LIMIT),
+      numberOfPages: Math.ceil(total / limit),
     }
 
     return res.json(
@@ -62,14 +61,17 @@ export const getEmployees = async (
 }
 
 export const getEmployeesBySearch = async (
-  req: Request<{}, {}, {}, { searchQuery: string }>,
+  req: Request<
+    {},
+    {},
+    {},
+    { searchQuery: string; limit: number; order: string }
+  >,
   res: Response,
 ) => {
-  const { searchQuery } = req.query
+  const { searchQuery, limit, order } = req.query
 
   const searchSensitiveRegex = diacriticSensitiveRegex(searchQuery)
-
-  const LIMIT = 10
 
   try {
     if (!searchSensitiveRegex) {
@@ -86,13 +88,13 @@ export const getEmployeesBySearch = async (
     const employees = await Employees.find({
       name: { $regex: searchSensitiveRegex, $options: 'i' },
     })
-      .sort({ _id: 1 })
-      .limit(LIMIT)
+      .sort({ _id: order === 'cresc' ? 1 : -1 })
+      .limit(limit)
 
     const data = {
       list: employees,
       currentPage: Number(employees.length) === 0 ? 0 : 1,
-      numberOfPages: Math.ceil(Number(employees.length) / LIMIT),
+      numberOfPages: Math.ceil(Number(employees.length) / limit),
     }
 
     return res.json(

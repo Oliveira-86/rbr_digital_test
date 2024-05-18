@@ -13,6 +13,8 @@ export type EmployeeData = {
   numberOfPages: number;
   isLoading: boolean;
   error: string | null;
+  limit: number;
+  order: 'cresc' | 'desc';
 };
 
 export type ApiResponse<T> = {
@@ -20,4 +22,16 @@ export type ApiResponse<T> = {
   statusCode: number;
   result: T;
   message: string;
+};
+
+export type FetchEmployeesParams = {
+  page: number;
+  limit: number;
+  order: 'cresc' | 'desc';
+};
+
+export type FetchEmployeesSearchParams = {
+  searchQuery: string;
+  limit: number;
+  order: 'cresc' | 'desc';
 };
