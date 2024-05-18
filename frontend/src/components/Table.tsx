@@ -50,6 +50,8 @@ import { FaRegTrashAlt, FaEdit } from 'react-icons/fa';
 
 import type { ApiResponse } from '@/types';
 import { useRouter } from 'next/navigation';
+import { useDebouncedValue } from '@/hook/useDebouncedValue';
+import { DEBOUNCE_TIME } from '@/utils/cons';
 
 export default function Table() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,8 +69,10 @@ export default function Table() {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const [valueDebounced] = useDebouncedValue(searchQuery, DEBOUNCE_TIME);
+
   const paramsSearcth = {
-    searchQuery,
+    searchQuery: valueDebounced,
     limit,
     order,
   };
@@ -80,22 +84,14 @@ export default function Table() {
   };
 
   useEffect(() => {
-    if (!searchQuery) {
+    if (!valueDebounced) {
       // @ts-ignore
       dispatch(fetchEmployees(params));
     } else {
       // @ts-ignore
       dispatch(fetchEmployeesBySearch(paramsSearcth));
     }
-  }, [searchQuery, currentPage, limit, order, dispatch]);
-
-  useEffect(() => {
-    if (searchQuery) {
-      console.log(searchQuery);
-      // @ts-ignore
-      dispatch(fetchEmployeesBySearch(paramsSearcth));
-    }
-  }, [searchQuery, currentPage, limit, order, dispatch]);
+  }, [valueDebounced, currentPage, limit, order, dispatch]);
 
   const handleNextPage = () => {
     if (currentPage < numberOfPages) {
@@ -117,17 +113,6 @@ export default function Table() {
 
   const handleSearchInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
-  };
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!searchQuery) {
-      // @ts-ignore
-      dispatch(fetchEmployees(params));
-      return;
-    }
-    // @ts-ignore
-    dispatch(fetchEmployeesBySearch(paramsSearcth));
   };
 
   const handleOpenModalToDelete = (id: string) => {
@@ -175,33 +160,23 @@ export default function Table() {
   return (
     <>
       <Flex w="100%" display="flex" alignItems="center" justify="space-between">
-        <form onSubmit={handleSubmit}>
-          <InputGroup
-            size={['200px', '200px', '350px', '350px', '350px']}
-            mb={20}
+        <InputGroup
+          size={['200px', '200px', '350px', '350px', '350px']}
+          mb={20}
+        >
+          <InputLeftElement
+            width={['200px', '200px', '350px', '350px', '350px']}
+            gap={3}
           >
-            <InputLeftElement
+            <Input
               width={['200px', '200px', '350px', '350px', '350px']}
-              gap={3}
-            >
-              <Input
-                width={['200px', '200px', '350px', '350px', '350px']}
-                type={'text'}
-                placeholder="Pesquisar por nome"
-                value={searchQuery}
-                onChange={handleSearchInputChange}
-              />
-              <IconButton
-                bg={'blue.400'}
-                color="white"
-                aria-label="Search database"
-                icon={<SearchIcon />}
-                size="md"
-                type="submit"
-              />
-            </InputLeftElement>
-          </InputGroup>
-        </form>
+              type={'text'}
+              placeholder="Pesquisar por nome"
+              value={searchQuery}
+              onChange={handleSearchInputChange}
+            />
+          </InputLeftElement>
+        </InputGroup>
 
         <Button
           bg="blue.400"
