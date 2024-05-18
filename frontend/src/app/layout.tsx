@@ -3,6 +3,7 @@ import { fonts } from './fonts';
 import './globals.css';
 import Header from '@/components/Header';
 import ClientProvider from '@/providers/index.';
+import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'RBR Digital',
@@ -19,6 +20,7 @@ export default function RootLayout({
       <body>
         <Header />
         <ClientProvider>{children}</ClientProvider>
+        <Footer />
       </body>
     </html>
   );

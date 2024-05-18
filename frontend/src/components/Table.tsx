@@ -78,13 +78,7 @@ export default function Table({
 
   return (
     <>
-      <Flex
-        w="100%"
-        display="flex"
-        position={'relative'}
-        alignItems="center"
-        justify="space-between"
-      >
+      <Flex w="100%" display="flex" alignItems="center" justify="space-between">
         <InputGroup
           size={['200px', '200px', '350px', '350px', '350px']}
           mb={20}
@@ -134,8 +128,8 @@ export default function Table({
                 <Td>{employee.department}</Td>
                 <Td display={'flex'} align="center" justifyContent={'center'}>
                   <Menu>
-                    <MenuButton as={Button}>
-                      <Icon as={GiHamburgerMenu} color="gray.400" w={6} h={6} />
+                    <MenuButton>
+                      <Icon as={GiHamburgerMenu} color="gray.600" w={5} h={5} />
                     </MenuButton>
                     <MenuList>
                       <MenuItem
@@ -165,29 +159,46 @@ export default function Table({
         </StyledTable>
       </TableContainer>
 
-      <Flex w="100%" flex="flex" justify="flex-end" mt={10} gap={5}>
-        <Select w={110} onChange={handleLimitChange} value={limit}>
-          <option value={5}>5 linhas</option>
-          <option value={10}>10 linhas</option>
-          <option value={20}>20 linhas</option>
-          <option value={20}>40 linhas</option>
-        </Select>
-
-        <Select w={120} onChange={handleOrderChange} value={order}>
-          <option value="cresc">Crescente</option>
-          <option value="desc">Descendente</option>
-        </Select>
+      <Flex
+        w="100%"
+        flex="flex"
+        justify="flex-end"
+        mt={10}
+        gap={5}
+        direction={['column', 'column', 'row', 'row', 'row']}
+      >
         <Flex
-          w="auto"
-          display="flex"
-          align="center"
-          justify="space-between"
+          w={['100%', '100%', 'auto', 'auto', 'auto']}
+          flex="flex"
+          justify="flex-end"
           gap={5}
         >
+          <Select
+            w={['100%', '100%', 110, 120, 130]}
+            onChange={handleLimitChange}
+            value={limit}
+          >
+            <option value={5}>5 linhas</option>
+            <option value={10}>10 linhas</option>
+            <option value={20}>20 linhas</option>
+            <option value={20}>40 linhas</option>
+          </Select>
+
+          <Select
+            w={['100%', '100%', 110, 120, 130]}
+            onChange={handleOrderChange}
+            value={order}
+          >
+            <option value="cresc">Crescente</option>
+            <option value="desc">Descendente</option>
+          </Select>
+        </Flex>
+        <Flex w="auto" display="flex" align="center" justify="center" gap={5}>
           {currentPage} de {numberOfPages} páginas
           <IconButton
             bg={currentPage === 1 ? 'gray.200' : 'blue.400'}
             color="white"
+            _hover={'blue'}
             aria-label="Search database"
             icon={<ArrowLeftIcon />}
             size="xs"
@@ -196,6 +207,7 @@ export default function Table({
           />
           <IconButton
             bg={currentPage === numberOfPages ? 'gray.200' : 'blue.400'}
+            _hover={'blue'}
             color="white"
             aria-label="Search database"
             icon={<ArrowRightIcon />}

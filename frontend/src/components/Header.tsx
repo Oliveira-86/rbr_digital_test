@@ -16,6 +16,8 @@ export default function Header() {
       display="flex"
       align="center"
       gap={5}
+      as={'header'}
+      zIndex={100}
     >
       <GoBriefcase color="#4299E1" size={25} />
       <Text fontSize="6xl" as="b" color="#4299E1">

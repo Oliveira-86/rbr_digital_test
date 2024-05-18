@@ -14,12 +14,12 @@ import {
 import { setLimit, setOrder, setPage } from '@/redux/employees/employeesSlice';
 import api from '@/services/api';
 import { useRouter } from 'next/navigation';
-
-const DEBOUNCE_TIME = 500;
+import { DEBOUNCE_TIME } from '@/utils/cons';
 
 const useEmployeeTable = () => {
-  const { list, currentPage, numberOfPages, limit, order, isLoading } =
-    useSelector((state: RootState) => state.employees);
+  const { currentPage, numberOfPages, limit, order, isLoading } = useSelector(
+    (state: RootState) => state.employees
+  );
 
   const [searchQuery, setSearchQuery] = useState('');
   const [employeeId, setEmployeeId] = useState('');

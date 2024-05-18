@@ -142,8 +142,20 @@ export default function Register() {
             <FormErrorMessage>{errors.hireDate?.message}</FormErrorMessage>
           </FormControl>
 
-          <Flex align={'center'} gap={5} mt={10}>
-            <Button w={200} type="submit" colorScheme="blue">
+          <Flex
+            align={'center'}
+            direction={['column', 'column', 'row']}
+            gap={5}
+            mt={10}
+            w={'100%'}
+            justify={'center'}
+          >
+            <Button
+              w={['100%', '100%', 220]}
+              type="submit"
+              colorScheme="blue"
+              alignContent={'center'}
+            >
               {loading ? (
                 <Spinner color="white" />
               ) : (
@@ -157,8 +169,7 @@ export default function Register() {
               <Button
                 variant="outline"
                 colorScheme="blue"
-                size="md"
-                aria-label="Send email"
+                w={['100%', '100%', 60]}
                 onClick={() => dispatch(clearCurrentEmployee())}
               >
                 Limpar
