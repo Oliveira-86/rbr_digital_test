@@ -32,13 +32,14 @@ import {
 } from '@chakra-ui/react';
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { FaRegTrashAlt, FaEdit } from 'react-icons/fa';
 import { ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { clearCurrentEmployee } from '@/redux/employees/employeesSlice';
 
 interface TableProps extends UseDisclosureProps {
   routerAdd: string;
@@ -71,10 +72,13 @@ export default function Table({
   handleDelete,
   loadingDelete,
 }: TableProps) {
-  const { list, currentPage, numberOfPages, limit, order, isLoading } =
-    useSelector((state: RootState) => state.employees);
+  const { list, currentPage, numberOfPages, limit, order } = useSelector(
+    (state: RootState) => state.employees
+  );
 
   const router = useRouter();
+
+  const dispatch = useDispatch();
 
   return (
     <>
@@ -101,7 +105,10 @@ export default function Table({
           bg="blue.400"
           color="white"
           mb={10}
-          onClick={() => router.push(routerAdd)}
+          onClick={() => {
+            dispatch(clearCurrentEmployee());
+            router.push(routerAdd);
+          }}
         >
           Adicionar
         </Button>
@@ -181,7 +188,7 @@ export default function Table({
             <option value={5}>5 linhas</option>
             <option value={10}>10 linhas</option>
             <option value={20}>20 linhas</option>
-            <option value={20}>40 linhas</option>
+            <option value={40}>40 linhas</option>
           </Select>
 
           <Select

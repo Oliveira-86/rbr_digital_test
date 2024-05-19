@@ -34,7 +34,7 @@ const employeeSchema = z.object({
     .min(1, 'Data de admissão é obrigatória')
     .regex(
       /^\d{4}-\d{2}-\d{2}$/,
-      'Data de admissão deve estar no formato AAAA-MM-DD'
+      'Data de admissão deve estar no formato DD-MM-AAAA'
     ),
 });
 
